@@ -10,7 +10,7 @@ filename with style: pH_7p01_*.save.
 
 __author__ = "Michael J. Harms"
 __date__ = "080410"
-__usage__ = "sparky_extract-peaks.py"
+__usage__ = "sparky_extract-peaks.py dir_with_save_files"
 
 import os, sys
 
@@ -84,9 +84,20 @@ def main():
     If called from command line...
     """
 
+    try:
+        input_dir = sys.argv[1]
+    except IndexError:
+        print __usage__
+        sys.exit()
+
     # Create list of sparky files
-    sparky_files = os.listdir('.')
+    if not os.path.isdir(input_dir):
+        print "\"%s\" does not exist!" % input_dir
+        sys.exit()
+    sparky_files = os.listdir(input_dir)
     sparky_files = [f for f in sparky_files if f[-5:] == ".save"]
+    sparky_files.sort()
+    os.chdir(input_dir)
 
     # Create list of pH values
     pH_values = [l.split("_")[1] for l in sparky_files]
@@ -109,8 +120,10 @@ def main():
 
     # Write output in R-readable format
     i = 0
-    output = ["%10s%10s%10s%10s%10s%10s%10s%10s%10s%30s\n" % \
-           (" ","residue","aa","atoms","pH","w1","w2","height","volume","note")]
+    output = ["# Taken from data in: %s\n" % os.path.abspath(input_dir)]
+    output.extend(["#   %s\n" % f for f in sparky_files])
+    output.append("%10s%10s%10s%10s%10s%10s%10s%10s%10s%30s\n" % \
+           (" ","residue","aa","atoms","pH","w1","w2","height","volume","note"))
     pH_values.sort()
     for peak in peak_labels:
         for pH in pH_values:
