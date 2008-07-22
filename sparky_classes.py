@@ -21,8 +21,7 @@ class SparkyPeak:
 
     def __init__(self,peak_lines,dimension):
         """
-        Use "dimension" to decide which parser to use on the data in
-        "peak_lines."
+        Use dimension to decide which parser to use on the data in peak_lines.
         """
     
         # Available parsers
@@ -36,7 +35,13 @@ class SparkyPeak:
         except KeyError:
             err = "Dimension \"%s\" is not valid!" % dimension
             raise SparkyError(err)
-        self.parser(peak_lines)
+
+        try:
+            self.parser(peak_lines)
+        except (ValueError,IndexError):
+            err = "Syntax error!  Peak could not be processed!\n\n %s"
+            err = err % "".join(peak_lines)
+            raise SparkyError(err) 
 
 
     def parseCommon(self,peak_lines):
@@ -116,7 +121,7 @@ class SparkyExperiment:
     Class to hold a set of sparky peaks extracted from a sparky .save file.
     """
 
-    def __init__(self,save_file):
+    def __init__(self,save_file,skip_unlabeled=True):
         """
         Read in a file, decide on the experiment dimensions, and generate a
         list of instances of SparkyPeak (self.peak_list).
@@ -148,6 +153,12 @@ class SparkyExperiment:
         for peak in peak_lines:
             indiv_peak = lines[peak[0]:peak[1]]
             self.peak_list.append(SparkyPeak(indiv_peak,dimension))
+
+        # Remove unlabeled peaks if requested
+        if skip_unlabeled:
+            self.peak_list = [p for p in self.peak_list if p.labeled]
+
+                
 
 
 def main():

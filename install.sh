@@ -12,6 +12,9 @@ if [ ${install_dir} ]; then
     for script in `ls ${current_dir}/*.py`; do
         cp ${script} .
     done
+    for script in `ls ${current_dir}/*.sh`; do
+        cp ${script} .
+    done
 else
     echo "No install directory specified.  Exiting."
     echo "    install.sh install_dir"
