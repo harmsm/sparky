@@ -78,7 +78,7 @@ def convertSparkyFile(sparky_file,peak_dict):
                 sparky[line_number] = new_line
 
         # Alter "label" entries
-        possible_atoms = ["N-HN","NE1-HE1"]
+        possible_atoms = ["N-HN","NE1-HE1","N"]
         if line[0:6] == "label ":
           
             # Try to separate atoms from actual peak label 
@@ -91,7 +91,11 @@ def convertSparkyFile(sparky_file,peak_dict):
                     success = True
                 except ValueError:
                     atoms_index += 1
-           
+                except IndexError:
+                    err = "Error parsing line!:\n%s" % line
+                    raise SparkyRenamePeaksError(err)
+
+ 
             if not success:
                 err = "Atoms on line: \"%s\" not recognized!" % line
                 raise SparkyRenamePeaksError(err)            
